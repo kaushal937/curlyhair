@@ -1,0 +1,6 @@
+{
+    "targeturl" : "http://localhost/",
+    "rate" : "10",
+    "total" : "123",
+    "warn" : true
+}
