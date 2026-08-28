@@ -1,6 +1,6 @@
 {
-    "targeturl" : "http://localhost/",
-    "rate" : "10",
-    "total" : "123",
+    "targeturl" : "http://127.0.0.1:443",
+    "rate" : "1800",
+    "total" : "100000",
     "warn" : true
 }
